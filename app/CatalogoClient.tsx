@@ -2,15 +2,12 @@
 
 import { useState } from 'react';
 import { Product } from './actions';
-// Si usas Next/Image, descomenta la siguiente línea, de lo contrario usamos la etiqueta img normal
-// import Image from 'next/image'; 
 
 export default function CatalogoClient({ products }: { products: Product[] }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const phoneNumber = "529618570315"; // <-- Pon tu número aquí
+  const phoneNumber = "529618570315"; // <-- Tu número de WhatsApp
 
   const handleWhatsApp = (product: Product) => {
-    // 1. EL PRECIO EN WHATSAPP: Se añade al mensaje solo si existe
     const message = `¡Hola! Me interesa hacer un pedido de: *${product.name}*${product.price ? ` (${product.price})` : ''}.\n\nMe gustaría recibir más información.`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -26,7 +23,6 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             <div className="p-4 sm:p-5 flex flex-col flex-grow">
               <h3 className="text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
               
-              {/* 2. EL PRECIO EN LA TARJETA: Se muestra en color dorado */}
               {p.price && <p className="text-[#D4AF37] font-black text-lg mt-1">{p.price}</p>}
               
               <div className="mt-auto pt-4">
@@ -41,9 +37,22 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
 
       {/* MODAL */}
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-[#FFFDF7] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200">
-            <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-black w-8 h-8 rounded-full flex items-center justify-center font-bold transition-colors">✕</button>
+        <div 
+          onClick={() => setSelectedProduct(null)} 
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-sm overflow-y-auto"
+        >
+          {/* Contenedor interno: e.stopPropagation() evita que el modal se cierre si haces clic dentro de la tarjeta blanca */}
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="bg-[#FFFDF7] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
+          >
+            {/* BOTÓN CERRAR ("X") MEJORADO: Ahora flota con seguridad arriba a la derecha de la tarjeta, fuera de la imagen */}
+            <button 
+              onClick={() => setSelectedProduct(null)} 
+              className="absolute -top-3 -right-3 sm:top-4 sm:right-4 bg-white text-gray-700 hover:bg-gray-100 hover:text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border border-gray-200 transition-colors z-10"
+            >
+              ✕
+            </button>
             
             <div className="relative w-full h-48 sm:h-64 mb-6 rounded-2xl overflow-hidden shadow-sm">
               <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-full h-full object-cover" />
@@ -51,7 +60,6 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             
             <h2 className="text-2xl sm:text-3xl font-black text-[#1A2530] mb-1 leading-tight">{selectedProduct.name}</h2>
             
-            {/* 3. EL PRECIO EN EL MODAL: Se muestra más grande debajo del título */}
             {selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>}
             
             <div className="space-y-4 mb-8 mt-4">
