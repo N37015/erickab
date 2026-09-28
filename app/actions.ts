@@ -10,6 +10,7 @@ export interface Product {
   composition?: string | null;
   price?: string | null;
   image_url: string;
+  es_promocion?: boolean;
 }
 
 export async function addProduct(formData: FormData) {
@@ -29,13 +30,14 @@ export async function addProduct(formData: FormData) {
     imageUrl = data.publicUrl;
   }
 
-  // Si el campo viene vacío, enviamos null
+  // Agregamos es_promocion leyendo si el checkbox está activo ('true')
   const newProduct = {
     name: formData.get('name') as string,
     ingredients: (formData.get('ingredients') as string) || null,
     composition: (formData.get('composition') as string) || null,
     price: (formData.get('price') as string) || null,
     image_url: imageUrl,
+    es_promocion: formData.get('is_promo') === 'true', // <-- ¡Añadido aquí!
   };
 
   const { error } = await supabase.from('products').insert([newProduct]);
@@ -45,16 +47,13 @@ export async function addProduct(formData: FormData) {
   revalidatePath('/admin');
 }
 
-// ... mantén getProducts igual
-
-
 export async function getProducts() {
   const supabase = await createClient();
   const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
   
   if (error) {
-    console.error("Detalle del error al obtener:", error); // <-- Cambiado
-    throw new Error(`Error al obtener los postres: ${error.message}`); // <-- Cambiado
+    console.error("Detalle del error al obtener:", error);
+    throw new Error(`Error al obtener los postres: ${error.message}`);
   }
   
   return (data || []) as Product[];
@@ -68,7 +67,6 @@ export async function updateProduct(formData: FormData) {
   let imageUrl = formData.get('image_url') as string;
   const imageFile = formData.get('image_file') as File;
 
-  // Si el usuario subió un archivo NUEVO, lo procesamos
   if (imageFile && imageFile.size > 0) {
     const fileExt = imageFile.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
@@ -79,8 +77,6 @@ export async function updateProduct(formData: FormData) {
     const { data } = supabase.storage.from('postres').getPublicUrl(fileName);
     imageUrl = data.publicUrl;
 
-    // MEJORA: Solo intentamos borrar del Storage si la imagen vieja REALMENTE ERA de Supabase.
-    // Si era un link externo, lo ignoramos para que no cause errores.
     if (oldImageUrl && oldImageUrl.includes('supabase.co/storage')) {
       try {
         const urlParts = oldImageUrl.split('/');
@@ -92,17 +88,18 @@ export async function updateProduct(formData: FormData) {
     }
   }
 
-  // Validación final: ningún producto puede quedarse sin imagen
   if (!imageUrl) {
     throw new Error('La imagen del producto es obligatoria.');
   }
 
+  // Agregamos es_promocion también en la actualización
   const updatedProduct = {
     name: formData.get('name') as string,
     ingredients: (formData.get('ingredients') as string) || null,
     composition: (formData.get('composition') as string) || null,
     price: (formData.get('price') as string) || null,
     image_url: imageUrl,
+    es_promocion: formData.get('is_promo') === 'true', // <-- ¡Añadido aquí!
   };
 
   const { error } = await supabase.from('products').update(updatedProduct).eq('id', id);
@@ -115,14 +112,12 @@ export async function updateProduct(formData: FormData) {
 export async function deleteProduct(id: string, imageUrl: string) {
   const supabase = await createClient();
 
-  // 1. Extraer el nombre del archivo de la URL y borrarlo del Storage
   if (imageUrl && imageUrl.includes('supabase.co')) {
     const urlParts = imageUrl.split('/');
     const fileName = urlParts[urlParts.length - 1];
     await supabase.storage.from('postres').remove([fileName]);
   }
 
-  // 2. Borrar el registro de la base de datos
   const { error } = await supabase.from('products').delete().eq('id', id);
   if (error) throw new Error(`Error al eliminar: ${error.message}`);
 

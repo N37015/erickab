@@ -6,23 +6,20 @@ import { addProduct, updateProduct, deleteProduct, Product } from '../actions';
 export default function AdminClient({ initialProducts }: { initialProducts: Product[] }) {
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Estados para notificaciones y modales
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [productToDelete, setProductToDelete] = useState<{ id: string; imageUrl: string; name: string } | null>(null);
 
-  // Estados de los campos de texto
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [composition, setComposition] = useState('');
+  const [isPromo, setIsPromo] = useState(false); // <--- Nuevo estado para promoción
   
-  // Estados para el CRUD
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Estados para la imagen
   const [uploadType, setUploadType] = useState<'file' | 'url'>('file');
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -38,6 +35,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
       setPrice(editingProduct.price || '');
       setIngredients(editingProduct.ingredients || '');
       setComposition(editingProduct.composition || '');
+      setIsPromo(editingProduct.es_promocion || false); // <-- ¡Descomentado y corregido!
       setPreview(editingProduct.image_url);
       setUploadType('url');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -54,6 +52,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
     setPrice('');
     setIngredients('');
     setComposition('');
+    setIsPromo(false);
     formRef.current?.reset();
     setUploadType('file');
   };
@@ -90,12 +89,14 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
     setIsSubmitting(true);
     
     try {
-      // Formatear automáticamente el precio para que incluya '$' si no lo tiene
       let formattedPrice = price.trim();
       if (formattedPrice && !formattedPrice.startsWith('$')) {
         formattedPrice = `$${formattedPrice}`;
         formData.set('price', formattedPrice);
       }
+
+      // Enviamos el estado de la promoción
+      formData.set('is_promo', isPromo ? 'true' : 'false');
 
       if (editingProduct) {
         formData.append('id', editingProduct.id!);
@@ -161,7 +162,6 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start relative pb-12">
       
-      {/* NOTIFICACIÓN FLOTANTE */}
       {notification && (
         <div className={`fixed top-4 right-4 left-4 sm:left-auto z-50 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-medium transition-all transform animate-in fade-in slide-in-from-top-5 duration-300 ${
           notification.type === 'success' ? 'bg-[#1A2530] border-l-4 border-[#D4AF37]' : 'bg-red-600 border-l-4 border-red-800'
@@ -172,7 +172,6 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
         </div>
       )}
 
-      {/* MODAL DE CONFIRMACIÓN */}
       {productToDelete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border-t-4 border-[#D4AF37]">
@@ -181,18 +180,10 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
               Estás a punto de eliminar <span className="font-bold text-[#1A2530]">"{productToDelete.name}"</span>. Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3 justify-end">
-              <button 
-                type="button"
-                onClick={() => setProductToDelete(null)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200"
-              >
+              <button type="button" onClick={() => setProductToDelete(null)} className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200">
                 Cancelar
               </button>
-              <button 
-                type="button"
-                onClick={executeDelete}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-md"
-              >
+              <button type="button" onClick={executeDelete} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-md">
                 Sí, eliminar
               </button>
             </div>
@@ -200,7 +191,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
         </div>
       )}
       
-      {/* COLUMNA IZQUIERDA: FORMULARIO */}
+      {/* FORMULARIO */}
       <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-md border border-gray-200 lg:sticky lg:top-24">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-[#1A2530]">
@@ -216,48 +207,36 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
         <form ref={formRef} action={handleAction} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
-            <input 
-              required 
-              type="text" 
-              name="name" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" 
-            />
+            <input required type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" />
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Precio</label>
+            <input type="text" name="price" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" placeholder="Ej. 150" />
+          </div>
+
+          {/* CHECKBOX DE PROMOCIÓN */}
+          <div className="flex items-center gap-3 bg-yellow-50/50 p-3 rounded-lg border border-yellow-200">
             <input 
-              type="text" 
-              name="price" 
-              value={price} 
-              onChange={(e) => setPrice(e.target.value)} 
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" 
-              placeholder="Ej. 150 (se guardará como $150)" 
+              type="checkbox" 
+              id="isPromo"
+              checked={isPromo}
+              onChange={(e) => setIsPromo(e.target.checked)}
+              className="w-5 h-5 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer"
             />
+            <label htmlFor="isPromo" className="text-sm font-bold text-[#1A2530] cursor-pointer">
+              🔥 Marcar como Oferta / Promoción
+            </label>
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Ingredientes</label>
-            <textarea 
-              name="ingredients" 
-              rows={2} 
-              value={ingredients} 
-              onChange={(e) => setIngredients(e.target.value)} 
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" 
-            />
+            <textarea name="ingredients" rows={2} value={ingredients} onChange={(e) => setIngredients(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
-            <textarea 
-              name="composition" 
-              rows={2} 
-              value={composition} 
-              onChange={(e) => setComposition(e.target.value)} 
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" 
-            />
+            <textarea name="composition" rows={2} value={composition} onChange={(e) => setComposition(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
           </div>
 
           <div className="pt-2">
@@ -294,7 +273,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
         </form>
       </div>
 
-      {/* COLUMNA DERECHA: LISTA DE PRODUCTOS */}
+      {/* LISTA */}
       <div className="w-full lg:w-2/3">
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6">
           <h3 className="text-lg font-bold text-[#1A2530] mb-4">Postres Registrados ({products.length})</h3>
@@ -303,30 +282,24 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
             <div className="p-8 text-center text-gray-500">No hay productos registrados aún.</div>
           ) : (
             <div className="space-y-4">
-              {products.map((product) => (
+              {products.map((product: any) => (
                 <div key={product.id} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 gap-3 hover:shadow-sm transition-all">
                   <div className="flex items-center gap-3 overflow-hidden">
                     <img src={product.image_url} alt={product.name} className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shadow-sm flex-shrink-0" />
                     <div className="min-w-0">
-                      <h4 className="font-bold text-[#1A2530] truncate text-sm sm:text-base">{product.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-[#1A2530] truncate text-sm sm:text-base">{product.name}</h4>
+                        {product.is_promo && <span className="bg-[#D4AF37] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">OFERTA</span>}
+                      </div>
                       <p className="text-xs sm:text-sm text-[#D4AF37] font-bold">{product.price || 'Sin precio'}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button 
-                      onClick={() => setEditingProduct(product)}
-                      type="button"
-                      className="text-xs sm:text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition-colors"
-                    >
+                    <button onClick={() => setEditingProduct(product)} type="button" className="text-xs sm:text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition-colors">
                       Editar
                     </button>
-                    <button 
-                      onClick={() => confirmDelete(product.id!, product.image_url, product.name)}
-                      type="button"
-                      disabled={isDeleting === product.id}
-                      className="text-xs sm:text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition-colors disabled:opacity-50"
-                    >
+                    <button onClick={() => confirmDelete(product.id!, product.image_url, product.name)} type="button" disabled={isDeleting === product.id} className="text-xs sm:text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition-colors disabled:opacity-50">
                       {isDeleting === product.id ? '...' : 'Eliminar'}
                     </button>
                   </div>

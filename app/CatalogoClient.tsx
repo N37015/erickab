@@ -5,7 +5,11 @@ import { Product } from './actions';
 
 export default function CatalogoClient({ products }: { products: Product[] }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const phoneNumber = "529681176558"; // <-- Tu número de WhatsApp
+  const phoneNumber = "529618570315"; // Tu número de WhatsApp
+
+  // --- ESTADOS PARA LOS FILTROS Y ORDENAMIENTO ---
+  const [filterPromo, setFilterPromo] = useState(false);
+  const [sortBy, setSortBy] = useState<'default' | 'asc' | 'desc'>('default');
 
   // --- INTEGRACIÓN CON EL BOTÓN "ATRÁS" DEL CELULAR ---
   useEffect(() => {
@@ -37,30 +41,108 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
+  // --- LÓGICA DE FILTRADO Y ORDENAMIENTO ---
+  const filteredProducts = products.filter(p => {
+    if (filterPromo && !p.es_promocion) return false;
+    return true;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === 'asc' || sortBy === 'desc') {
+      // Limpiamos el texto del precio (quitando símbolos como '$') para poder compararlos numéricamente
+      const priceA = parseFloat((a.price || '0').replace(/[^0-9.]/g, '')) || 0;
+      const priceB = parseFloat((b.price || '0').replace(/[^0-9.]/g, '')) || 0;
+      return sortBy === 'asc' ? priceA - priceB : priceB - priceA;
+    }
+    return 0; // Orden por defecto (creación)
+  });
+
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        {products.map((p) => (
-          <div key={p.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col overflow-hidden group" onClick={() => setSelectedProduct(p)}>
-            <div className="relative w-full h-48 sm:h-56 overflow-hidden bg-gray-50">
-              <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div className="p-4 sm:p-5 flex flex-col flex-grow">
-              <h3 className="text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
-              
-              {p.price && <p className="text-[#D4AF37] font-black text-lg mt-1">{p.price}</p>}
-              
-              <div className="mt-auto pt-4">
-                <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
-                  Ver detalles
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* BARRA DE FILTROS Y ORDENAMIENTO */}
+      <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 gap-4">
+        
+        {/* Botones de categoría / filtro */}
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <button 
+            onClick={() => setFilterPromo(false)}
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              !filterPromo 
+                ? 'bg-[#1A2530] text-white shadow-sm' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            🍰 Todos los postres
+          </button>
+          
+          <button 
+            onClick={() => setFilterPromo(true)}
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              filterPromo 
+                ? 'bg-[black] text-white shadow-md' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <span>🔥</span> Promociones
+          </button>
+        </div>
+
+        {/* Menú desplegable para ordenar */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider hidden md:inline">Ordenar:</span>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="w-full sm:w-auto bg-gray-50 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-[#D4AF37] cursor-pointer"
+          >
+            <option value="default">Más recientes</option>
+            <option value="asc">Menor precio ($)</option><option value="desc">Mayor precio ($)</option>
+          </select>
+        </div>
       </div>
 
-      {/* MODAL */}
+      {/* CUADRÍCULA DE PRODUCTOS */}
+      {sortedProducts.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+          <span className="text-4xl">🔍</span>
+          <h3 className="text-lg font-bold text-[#1A2530] mt-3">No se encontraron productos</h3>
+          <p className="text-gray-500 text-sm mt-1">Intenta cambiar los filtros seleccionados.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {sortedProducts.map((p: any) => (
+            <div 
+              key={p.id} 
+              className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col overflow-hidden group relative" 
+              onClick={() => setSelectedProduct(p)}
+            >
+              {p.es_promocion && (
+                <span className="absolute top-3 left-3 bg-[red] text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-md z-10 animate-pulse">
+                  🔥 ¡En Oferta!
+                </span>
+              )}
+
+              <div className="relative w-full h-48 sm:h-56 overflow-hidden bg-gray-50">
+                <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              
+              <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                <h3 className="text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
+                
+                {p.price && <p className="text-[#D4AF37] font-black text-lg mt-1">{p.price}</p>}
+                
+                <div className="mt-auto pt-4">
+                  <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
+                    Ver detalles
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODAL DE DETALLES */}
       {selectedProduct && (
         <div 
           onClick={closeModel} 
@@ -70,7 +152,6 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             onClick={(e) => e.stopPropagation()} 
             className="bg-[#FFFDF7] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
           >
-            {/* BOTÓN CERRAR ("X") FLOTANTE */}
             <button 
               onClick={closeModel} 
               className="absolute -top-3 -right-3 sm:top-4 sm:right-4 bg-white text-gray-700 hover:bg-gray-100 hover:text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border border-gray-200 transition-colors z-10"
@@ -82,10 +163,8 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
               <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-full h-full object-cover" />
             </div>
             
-            {/* Título limpio */}
             <h2 className="text-2xl sm:text-3xl font-black text-[#1A2530] mb-1 leading-tight">{selectedProduct.name}</h2>
             
-            {/* Precio único en color dorado debajo del título */}
             {selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>}
             
             <div className="space-y-4 mb-8 mt-4">
