@@ -1,11 +1,39 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from './actions';
 
 export default function CatalogoClient({ products }: { products: Product[] }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const phoneNumber = "529618570315"; // <-- Tu número de WhatsApp
+
+  // --- INTEGRACIÓN CON EL BOTÓN "ATRÁS" DEL CELULAR ---
+  useEffect(() => {
+    const handlePopState = () => {
+      // Si el modal está abierto y presionan "atrás", solo cerramos el modal
+      if (selectedProduct) {
+        setSelectedProduct(null);
+      }
+    };
+
+    if (selectedProduct) {
+      // Agregamos una entrada falsa al historial cuando se abre el modal
+      window.history.pushState({ modalOpen: true }, '');
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [selectedProduct]);
+
+  const closeModel = () => {
+    // Si cerramos manualmente (con la X o clic afuera), regresamos el historial si es necesario
+    if (selectedProduct) {
+      window.history.back();
+    }
+    setSelectedProduct(null);
+  };
 
   const handleWhatsApp = (product: Product) => {
     const message = `¡Hola! Me interesa hacer un pedido de: *${product.name}*${product.price ? ` (${product.price})` : ''}.\n\nMe gustaría recibir más información.`;
@@ -35,10 +63,10 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
         ))}
       </div>
 
-      {/* MODAL CON IMAGEN EN TAMAÑO ORIGINAL Y X FLOTANTE */}
+      {/* MODAL */}
       {selectedProduct && (
         <div 
-          onClick={() => setSelectedProduct(null)} 
+          onClick={closeModel} 
           className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto"
         >
           <div 
@@ -47,13 +75,12 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
           >
             {/* BOTÓN CERRAR ("X") FLOTANTE */}
             <button 
-              onClick={() => setSelectedProduct(null)} 
+              onClick={closeModel} 
               className="absolute -top-3 -right-3 sm:top-4 sm:right-4 bg-white text-gray-700 hover:bg-gray-100 hover:text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border border-gray-200 transition-colors z-10"
             >
               ✕
             </button>
             
-            {/* Imagen en tamaño original */}
             <div className="relative w-full h-48 sm:h-64 mb-6 rounded-2xl overflow-hidden shadow-sm">
               <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-full h-full object-cover" />
             </div>
