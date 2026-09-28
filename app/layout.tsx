@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,14 +14,30 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-4 py-4 sm:p-5 shadow-md sticky top-0 z-40">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FFFDF7] tracking-wider">
-              Erika's Bake
-            </h1>
-            <span className="text-[#D4AF37] text-xs sm:text-sm font-medium bg-[#1A2530]/50 px-3 py-1 rounded-full">
-              Postres Artesanales
-            </span>
+        
+        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-4 py-3 sm:px-8 shadow-md sticky top-0 z-40">
+          <div className="max-w-6xl mx-auto flex items-center gap-4">
+            {/* LOGO A LA IZQUIERDA */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
+              <Image
+              src="/logo.png"
+              alt="Erika's Bake Logo"
+              fill
+              priority
+              sizes="(max-width: 768px) 48px, 64px" /* <-- Esto le dice a Next.js los tamaños exactos según la pantalla */
+              className="rounded-full object-cover border-2 border-[#D4AF37]"
+            />
+            </div>
+            
+            {/* NOMBRE DE LA MARCA */}
+            <div>
+              <h1 className="text-xl sm:text-3xl font-extrabold text-[#FFFDF7] tracking-wider">
+                Erika's Bake
+              </h1>
+              <span className="text-[#D4AF37] text-xs sm:text-sm font-medium">
+                Postres Artesanales
+              </span>
+            </div>
           </div>
         </header>
         
