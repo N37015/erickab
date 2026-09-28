@@ -1,16 +1,16 @@
 'use client'
 
 import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 
-// Inicializamos el cliente de Supabase para el navegador
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export default function LoginPage() {
+  // Inicializamos Supabase compatible con cookies de servidor (SSR)
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function LoginPage() {
       setError('Correo o contraseña incorrectos');
       setLoading(false);
     } else {
-      // Si el login es exitoso y eres el admin, te mandamos directo al panel
+      // Forzamos la actualización de la ruta y redirigimos al admin
       router.push('/admin');
       router.refresh();
     }
