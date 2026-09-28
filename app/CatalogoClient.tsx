@@ -35,7 +35,7 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
         ))}
       </div>
 
-      {/* MODAL MÁS COMPACTO Y ELEGANTE */}
+      {/* MODAL CON IMAGEN EN TAMAÑO ORIGINAL Y X FLOTANTE */}
       {selectedProduct && (
         <div 
           onClick={() => setSelectedProduct(null)} 
@@ -43,44 +43,44 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
         >
           <div 
             onClick={(e) => e.stopPropagation()} 
-            className="bg-[#FFFDF7] rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative my-auto max-h-[85vh] flex flex-col overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
+            className="bg-[#FFFDF7] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
           >
             {/* BOTÓN CERRAR ("X") FLOTANTE */}
             <button 
               onClick={() => setSelectedProduct(null)} 
-              className="absolute -top-3 -right-3 sm:top-3 sm:right-3 bg-white text-gray-700 hover:bg-gray-100 hover:text-black w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-lg border border-gray-200 transition-colors z-10"
+              className="absolute -top-3 -right-3 sm:top-4 sm:right-4 bg-white text-gray-700 hover:bg-gray-100 hover:text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border border-gray-200 transition-colors z-10"
             >
               ✕
             </button>
             
-            {/* Imagen más compacta */}
-            <div className="relative w-full h-40 sm:h-48 mb-4 rounded-2xl overflow-hidden shadow-sm flex-shrink-0">
+            {/* Imagen en tamaño original */}
+            <div className="relative w-full h-48 sm:h-64 mb-6 rounded-2xl overflow-hidden shadow-sm">
               <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-full h-full object-cover" />
             </div>
             
-            <h2 className="text-xl sm:text-2xl font-black text-[#1A2530] mb-0.5 leading-tight">{selectedProduct.name}</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#1A2530] mb-1 leading-tight">{selectedProduct.name}</h2>
             
-            {selectedProduct.price && <p className="text-[#D4AF37] font-black text-xl mb-3">{selectedProduct.price}</p>}
+            {selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>}
             
-            <div className="space-y-3 mb-6 mt-1 text-sm">
+            <div className="space-y-4 mb-8 mt-4">
               {selectedProduct.ingredients && (
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider mb-0.5">Ingredientes:</h3>
-                  <p className="text-gray-600 leading-relaxed">{selectedProduct.ingredients}</p>
+                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                  <h3 className="font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-1">Ingredientes:</h3>
+                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{selectedProduct.ingredients}</p>
                 </div>
               )}
               
               {selectedProduct.composition && (
-                <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                  <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider mb-0.5">Descripción:</h3>
-                  <p className="text-gray-600 leading-relaxed">{selectedProduct.composition}</p>
+                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                  <h3 className="font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-1">Descripción:</h3>
+                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{selectedProduct.composition}</p>
                 </div>
               )}
             </div>
             
             <button 
               onClick={() => handleWhatsApp(selectedProduct)}
-              className="w-full bg-[#25D366] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#128C7E] transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex justify-center items-center gap-2 mt-auto"
+              className="w-full bg-[#25D366] text-white font-bold text-lg py-4 px-4 rounded-xl hover:bg-[#128C7E] transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex justify-center items-center gap-3"
             >
               Hacer pedido por WhatsApp
             </button>
