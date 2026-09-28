@@ -59,44 +59,43 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
 
   return (
     <>
-      {/* BARRA DE FILTROS Y ORDENAMIENTO */}
-      <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 gap-4">
+     {/* BARRA DE FILTROS Y ORDENAMIENTO OPTIMIZADA PARA MÓVIL */}
+      <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8">
         
-        {/* Botones de categoría / filtro */}
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        {/* Botones de categoría / filtro en una sola fila adaptable */}
+        <div className="grid grid-cols-2 gap-2 w-full">
           <button 
             onClick={() => setFilterPromo(false)}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+            className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
               !filterPromo 
                 ? 'bg-[#1A2530] text-white shadow-sm' 
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            🍰 Todos los postres
+            🍰 Todos
           </button>
           
           <button 
             onClick={() => setFilterPromo(true)}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1 text-center truncate ${
               filterPromo 
-                ? 'bg-[black] text-white shadow-md' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[#D4AF37] text-white shadow-md' 
+                : 'bg-yellow-50 text-[#D4AF37] border border-yellow-200 hover:bg-yellow-100'
             }`}
           >
-            <span>🔥</span> Promociones
+            <span>🔥</span> <span>Promociones</span>
           </button>
         </div>
 
         {/* Menú desplegable para ordenar */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider hidden md:inline">Ordenar:</span>
+        <div className="w-full">
           <select 
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="w-full sm:w-auto bg-gray-50 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-[#D4AF37] cursor-pointer"
+            className="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-[#D4AF37] cursor-pointer"
           >
-            <option value="default">Más recientes</option>
-            <option value="asc">Menor precio ($)</option><option value="desc">Mayor precio ($)</option>
+            <option value="default">Ordenar: Más recientes</option>
+            <option value="asc">Menor precio ($a$$$)</option>             <option value="desc">Mayor precio ($$$a$)</option>
           </select>
         </div>
       </div>

@@ -30,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
     {/* Botón de Ubicación */}
     <a 
-      href="https://maps.app.goo.gl/TU_ENLACE_DE_MAPS" 
+      href="https://www.google.com/maps/place/16%C2%B045'08.3%22N+93%C2%B022'13.1%22W/@16.752294,-93.370291,675m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d16.752294!4d-93.370291!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
       target="_blank" 
       rel="noopener noreferrer"
       className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-200 hover:text-[#D4AF37] transition-colors bg-[#111822] px-3 py-2 rounded-xl border border-gray-800 shadow-inner flex-shrink-0"
