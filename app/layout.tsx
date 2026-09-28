@@ -6,8 +6,9 @@ import Image from "next/image";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Erika's Bake | Postres y Pays",
+  title: "Erika's Bake",
   description: "Deliciosos postres artesanales.",
+  
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               </span>
             </div>
             <a 
-            href="https://www.google.com/maps/place/16%C2%B045'08.5%22N+93%C2%B022'13.2%22W/@16.7523522,-93.3729112,675m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d16.7523522!4d-93.3703363?hl=es&entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
+            href="https://www.google.com/maps/place/16%C2%B045'08.3%22N+93%C2%B022'13.1%22W/@16.7523898,-93.370542,142m/data=!3m1!1e3!4m4!3m3!8m2!3d16.752294!4d-93.370291!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-[#D4AF37] transition-colors bg-[#1A2530]/50 px-3 py-1.5 rounded-full border border-gray-800"
