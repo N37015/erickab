@@ -38,6 +38,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 Postres Artesanales
               </span>
             </div>
+            <a 
+            href="https://www.google.com/maps/place/16%C2%B045'08.5%22N+93%C2%B022'13.2%22W/@16.7523522,-93.3729112,675m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d16.7523522!4d-93.3703363?hl=es&entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-[#D4AF37] transition-colors bg-[#1A2530]/50 px-3 py-1.5 rounded-full border border-gray-800"
+          >
+            {/* Icono de ubicación */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Ubicación</span>
+          </a>
           </div>
         </header>
         
