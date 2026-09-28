@@ -16,44 +16,34 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         
-        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-4 py-3 sm:px-8 shadow-md sticky top-0 z-40">
-          <div className="max-w-6xl mx-auto flex items-center gap-4">
-            {/* LOGO A LA IZQUIERDA */}
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
-              <Image
-              src="/logo.png"
-              alt="Erika's Bake Logo"
-              fill
-              priority
-              sizes="(max-width: 768px) 48px, 64px" /* <-- Esto le dice a Next.js los tamaños exactos según la pantalla */
-              className="rounded-full object-cover border-2 border-[#D4AF37]"
-            />
-            </div>
-            
-            {/* NOMBRE DE LA MARCA */}
-            <div>
-              <h1 className="text-xl sm:text-3xl font-extrabold text-[#FFFDF7] tracking-wider">
-                Erika's Bake
-              </h1>
-              <span className="text-[#D4AF37] text-xs sm:text-sm font-medium">
-                Postres Artesanales
-              </span>
-            </div>
-            <a 
-            href="https://www.google.com/maps/place/16%C2%B045'08.3%22N+93%C2%B022'13.1%22W/@16.7523898,-93.370542,142m/data=!3m1!1e3!4m4!3m3!8m2!3d16.752294!4d-93.370291!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-[#D4AF37] transition-colors bg-[#1A2530]/50 px-3 py-1.5 rounded-full border border-gray-800"
-          >
-            {/* Icono de ubicación */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Ubicación</span>
-          </a>
-          </div>
-        </header>
+        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-4 py-3 sticky top-0 z-40 shadow-md">
+  <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+    
+    {/* Logo y Nombre alineados */}
+    <div className="flex items-center gap-3">
+      <img src="/logo.png" alt="Erika's Bake" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-[#D4AF37]" />
+      <div>
+        <h1 className="text-white font-black text-lg sm:text-2xl tracking-wide leading-tight">Erika's Bake</h1>
+        <p className="text-[#D4AF37] text-xs font-medium">Postres Artesanales</p>
+      </div>
+    </div>
+
+    {/* Botón de Ubicación */}
+    <a 
+      href="https://maps.app.goo.gl/TU_ENLACE_DE_MAPS" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-200 hover:text-[#D4AF37] transition-colors bg-[#111822] px-3 py-2 rounded-xl border border-gray-800 shadow-inner flex-shrink-0"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth= {2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span>Ubicación</span>
+    </a>
+
+  </div>
+</header>
         
         <main className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
           {children}

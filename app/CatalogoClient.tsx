@@ -122,18 +122,19 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
                 </span>
               )}
 
-              <div className="relative w-full h-48 sm:h-56 overflow-hidden bg-gray-50">
-                <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              
-              <div className="p-4 sm:p-5 flex flex-col flex-grow">
-                <h3 className="text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
-                
-                {p.price && <p className="text-[#D4AF37] font-black text-lg mt-1">{p.price}</p>}
-                
-                <div className="mt-auto pt-4">
-                  <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
-                    Ver detalles
+{/* Imagen más compacta en celulares (h-40) y normal en tablets/PCs (h-56) */}
+      <div className="relative w-full h-40 sm:h-56 overflow-hidden bg-gray-50">
+        <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      </div>
+      
+      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+        <h3 className="text-sm sm:text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
+        
+        {p.price && <p className="text-[#D4AF37] font-black text-base sm:text-lg mt-1">{p.price}</p>}
+        
+        <div className="mt-auto pt-3">
+          <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-xs sm:text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
+            Ver detalles
                   </span>
                 </div>
               </div>
