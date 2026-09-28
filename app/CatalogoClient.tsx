@@ -95,7 +95,7 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             className="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-[#D4AF37] cursor-pointer"
           >
             <option value="default">Ordenar: Más recientes</option>
-            <option value="asc">Menor precio ($a$$$)</option>             <option value="desc">Mayor precio ($$$a$)</option>
+            <option value="asc">Menor precio ($)</option>             <option value="desc">Mayor precio ($)</option>
           </select>
         </div>
       </div>
