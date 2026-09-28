@@ -40,7 +40,6 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
       setComposition(editingProduct.composition || '');
       setPreview(editingProduct.image_url);
       setUploadType('url');
-      // Hacer scroll suave hacia arriba en el celular para ver el formulario al editar
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       clearForm();
@@ -91,6 +90,13 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
     setIsSubmitting(true);
     
     try {
+      // Formatear automáticamente el precio para que incluya '$' si no lo tiene
+      let formattedPrice = price.trim();
+      if (formattedPrice && !formattedPrice.startsWith('$')) {
+        formattedPrice = `$${formattedPrice}`;
+        formData.set('price', formattedPrice);
+      }
+
       if (editingProduct) {
         formData.append('id', editingProduct.id!);
         formData.append('old_image_url', editingProduct.image_url);
@@ -228,7 +234,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
               value={price} 
               onChange={(e) => setPrice(e.target.value)} 
               className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" 
-              placeholder="Ej. $150 MXN" 
+              placeholder="Ej. 150 (se guardará como $150)" 
             />
           </div>
 
@@ -288,7 +294,7 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
         </form>
       </div>
 
-      {/* COLUMNA DERECHA: LISTA DE PRODUCTOS RESPONSIVA (TARJETAS EN MÓVIL, TABLA EN PC) */}
+      {/* COLUMNA DERECHA: LISTA DE PRODUCTOS */}
       <div className="w-full lg:w-2/3">
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6">
           <h3 className="text-lg font-bold text-[#1A2530] mb-4">Postres Registrados ({products.length})</h3>

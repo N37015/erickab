@@ -10,14 +10,12 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
   // --- INTEGRACIÓN CON EL BOTÓN "ATRÁS" DEL CELULAR ---
   useEffect(() => {
     const handlePopState = () => {
-      // Si el modal está abierto y presionan "atrás", solo cerramos el modal
       if (selectedProduct) {
         setSelectedProduct(null);
       }
     };
 
     if (selectedProduct) {
-      // Agregamos una entrada falsa al historial cuando se abre el modal
       window.history.pushState({ modalOpen: true }, '');
       window.addEventListener('popstate', handlePopState);
     }
@@ -28,7 +26,6 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
   }, [selectedProduct]);
 
   const closeModel = () => {
-    // Si cerramos manualmente (con la X o clic afuera), regresamos el historial si es necesario
     if (selectedProduct) {
       window.history.back();
     }
@@ -85,8 +82,10 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
               <img src={selectedProduct.image_url} alt={selectedProduct.name} className="w-full h-full object-cover" />
             </div>
             
+            {/* Título limpio */}
             <h2 className="text-2xl sm:text-3xl font-black text-[#1A2530] mb-1 leading-tight">{selectedProduct.name}</h2>
             
+            {/* Precio único en color dorado debajo del título */}
             {selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>}
             
             <div className="space-y-4 mb-8 mt-4">
