@@ -40,12 +40,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // 2. Si sí inició sesión, verificamos si es TU correo de administrador
-    // (Reemplaza 'tu-correo@gmail.com' por el correo real con el que entras al admin)
-    const adminEmail = 'corzogarciaernesto15@gmail.com'; 
+  const adminEmails = [
+      'corzogarciaernesto15@gmail.com', // Tu correo
+      'kia.gonzalez014@gmail.com' // Correo de la otra persona
+    ]; 
 
-    if (user.email !== adminEmail) {
-      // Si es un cliente normal, lo sacamos y lo mandamos al catálogo/inicio
+    // Si el correo del usuario que intenta entrar NO está en la lista, lo bloqueamos
+    if (!user.email || !adminEmails.includes(user.email)) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
