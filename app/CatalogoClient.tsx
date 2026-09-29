@@ -5,7 +5,7 @@ import { Product } from './actions';
 
 export default function CatalogoClient({ products }: { products: Product[] }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const phoneNumber = "529618570315"; // Tu número de WhatsApp
+  const phoneNumber = "529681176558"; // Tu número de WhatsApp
 
   // --- ESTADOS PARA LOS FILTROS Y ORDENAMIENTO ---
   const [filterPromo, setFilterPromo] = useState(false);
