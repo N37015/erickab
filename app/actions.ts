@@ -11,6 +11,8 @@ export interface Product {
   price?: string | null;
   image_url: string;
   es_promocion?: boolean;
+  precio_anterior?: string | null;
+  detalles_promocion?: string | null; // <-- Añadido a la interfaz
 }
 
 export async function addProduct(formData: FormData) {
@@ -30,14 +32,17 @@ export async function addProduct(formData: FormData) {
     imageUrl = data.publicUrl;
   }
 
-  // Agregamos es_promocion leyendo si el checkbox está activo ('true')
+  const isPromo = formData.get('is_promo') === 'true';
+
   const newProduct = {
     name: formData.get('name') as string,
     ingredients: (formData.get('ingredients') as string) || null,
     composition: (formData.get('composition') as string) || null,
     price: (formData.get('price') as string) || null,
     image_url: imageUrl,
-    es_promocion: formData.get('is_promo') === 'true', // <-- ¡Añadido aquí!
+    es_promocion: isPromo,
+    precio_anterior: isPromo ? (formData.get('precio_anterior') as string) || null : null,
+    detalles_promocion: isPromo ? (formData.get('detalles_promocion') as string) || null : null, // <-- Guardar detalles
   };
 
   const { error } = await supabase.from('products').insert([newProduct]);
@@ -83,7 +88,7 @@ export async function updateProduct(formData: FormData) {
         const oldFileName = urlParts[urlParts.length - 1];
         await supabase.storage.from('postres').remove([oldFileName]);
       } catch (err) {
-        console.warn("No se pudo borrar la imagen anterior del storage, pero continuamos:", err);
+        console.warn("No se pudo borrar la imagen anterior del storage:", err);
       }
     }
   }
@@ -92,14 +97,17 @@ export async function updateProduct(formData: FormData) {
     throw new Error('La imagen del producto es obligatoria.');
   }
 
-  // Agregamos es_promocion también en la actualización
+  const isPromo = formData.get('is_promo') === 'true';
+
   const updatedProduct = {
     name: formData.get('name') as string,
     ingredients: (formData.get('ingredients') as string) || null,
     composition: (formData.get('composition') as string) || null,
     price: (formData.get('price') as string) || null,
     image_url: imageUrl,
-    es_promocion: formData.get('is_promo') === 'true', // <-- ¡Añadido aquí!
+    es_promocion: isPromo,
+    precio_anterior: isPromo ? (formData.get('precio_anterior') as string) || null : null,
+    detalles_promocion: isPromo ? (formData.get('detalles_promocion') as string) || null : null, // <-- Actualizar detalles
   };
 
   const { error } = await supabase.from('products').update(updatedProduct).eq('id', id);

@@ -25,17 +25,22 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const [precioAnterior, setPrecioAnterior] = useState('');
+const [detallesPromocion, setDetallesPromocion] = useState('');
+
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
 
-  useEffect(() => {
+ useEffect(() => {
     if (editingProduct) {
       setName(editingProduct.name || '');
       setPrice(editingProduct.price || '');
       setIngredients(editingProduct.ingredients || '');
       setComposition(editingProduct.composition || '');
-      setIsPromo(editingProduct.es_promocion || false); // <-- ¡Descomentado y corregido!
+      setIsPromo(editingProduct.es_promocion || false);
+      setPrecioAnterior(editingProduct.precio_anterior || '');
+      setDetallesPromocion(editingProduct.detalles_promocion || '');
       setPreview(editingProduct.image_url);
       setUploadType('url');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -53,6 +58,8 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
     setIngredients('');
     setComposition('');
     setIsPromo(false);
+    setPrecioAnterior('');
+    setDetallesPromocion('');
     formRef.current?.reset();
     setUploadType('file');
   };
@@ -215,18 +222,47 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
             <input type="text" name="price" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" placeholder="Ej. 150" />
           </div>
 
-          {/* CHECKBOX DE PROMOCIÓN */}
-          <div className="flex items-center gap-3 bg-yellow-50/50 p-3 rounded-lg border border-yellow-200">
-            <input 
-              type="checkbox" 
-              id="isPromo"
-              checked={isPromo}
-              onChange={(e) => setIsPromo(e.target.checked)}
-              className="w-5 h-5 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer"
-            />
-            <label htmlFor="isPromo" className="text-sm font-bold text-[#1A2530] cursor-pointer">
-              🔥 Marcar como Oferta / Promoción
-            </label>
+         {/* CHECKBOX Y CAMPOS DE PROMOCIÓN */}
+          <div className="bg-yellow-50/50 p-4 rounded-xl border border-yellow-200 space-y-3">
+            <div className="flex items-center gap-3">
+              <input 
+                type="checkbox" 
+                id="isPromo"
+                checked={isPromo}
+                onChange={(e) => setIsPromo(e.target.checked)}
+                className="w-5 h-5 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer"
+              />
+              <label htmlFor="isPromo" className="text-sm font-bold text-[#1A2530] cursor-pointer">
+                🔥 ¿Es una promoción o combo especial?
+              </label>
+            </div>
+
+            {isPromo && (
+              <div className="space-y-3 pt-2 border-t border-yellow-200/60 animate-in fade-in duration-200">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Precio Anterior (Tachado)</label>
+                  <input 
+                    type="text" 
+                    name="precio_anterior" 
+                    value={precioAnterior}
+                    onChange={(e) => setPrecioAnterior(e.target.value)}
+                    placeholder="Ej. $380" 
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">¿Qué incluye la promoción / combo?</label>
+                  <input 
+                    type="text" 
+                    name="detalles_promocion" 
+                    value={detallesPromocion}
+                    onChange={(e) => setDetallesPromocion(e.target.value)}
+                    placeholder="Ej. 1 Chocoflan familiar + 1 Pay de Queso" 
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" 
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

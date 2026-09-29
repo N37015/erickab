@@ -37,7 +37,11 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
   };
 
   const handleWhatsApp = (product: Product) => {
-    const message = `¡Hola! Me interesa hacer un pedido de: *${product.name}*${product.price ? ` (${product.price})` : ''}.\n\nMe gustaría recibir más información.`;
+    let message = `¡Hola! Me interesa hacer un pedido de: *${product.name}*${product.price ? ` (${product.price})` : ''}.`;
+    if (product.es_promocion && product.detalles_promocion) {
+      message += `\nIncluye: ${product.detalles_promocion}`;
+    }
+    message += `\n\nMe gustaría recibir más información.`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -49,7 +53,6 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'asc' || sortBy === 'desc') {
-      // Limpiamos el texto del precio (quitando símbolos como '$') para poder compararlos numéricamente
       const priceA = parseFloat((a.price || '0').replace(/[^0-9.]/g, '')) || 0;
       const priceB = parseFloat((b.price || '0').replace(/[^0-9.]/g, '')) || 0;
       return sortBy === 'asc' ? priceA - priceB : priceB - priceA;
@@ -59,7 +62,7 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
 
   return (
     <>
-     {/* BARRA DE FILTROS Y ORDENAMIENTO OPTIMIZADA PARA MÓVIL */}
+      {/* BARRA DE FILTROS Y ORDENAMIENTO OPTIMIZADA PARA MÓVIL */}
       <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8">
         
         {/* Botones de categoría / filtro en una sola fila adaptable */}
@@ -95,7 +98,8 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             className="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-[#D4AF37] cursor-pointer"
           >
             <option value="default">Ordenar: Más recientes</option>
-            <option value="asc">Menor precio ($)</option>             <option value="desc">Mayor precio ($)</option>
+            <option value="asc">Menor precio ($)</option>
+            <option value="desc">Mayor precio ($)</option>
           </select>
         </div>
       </div>
@@ -115,25 +119,40 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
               className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col overflow-hidden group relative" 
               onClick={() => setSelectedProduct(p)}
             >
+              {/* Etiqueta de Oferta */}
               {p.es_promocion && (
-                <span className="absolute top-3 left-3 bg-[red] text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-md z-10 animate-pulse">
-                  🔥 ¡En Oferta!
+                <span className="absolute top-3 left-3 bg-[#D4AF37] text-white text-[10px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full shadow-md z-10 animate-pulse">
+                  🔥 Oferta
                 </span>
               )}
 
-{/* Imagen más compacta en celulares (h-40) y normal en tablets/PCs (h-56) */}
-      <div className="relative w-full h-40 sm:h-56 overflow-hidden bg-gray-50">
-        <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-      </div>
-      
-      <div className="p-3 sm:p-4 flex flex-col flex-grow">
-        <h3 className="text-sm sm:text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
-        
-        {p.price && <p className="text-[#D4AF37] font-black text-base sm:text-lg mt-1">{p.price}</p>}
-        
-        <div className="mt-auto pt-3">
-          <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-xs sm:text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
-            Ver detalles
+              <div className="relative w-full h-40 sm:h-56 overflow-hidden bg-gray-50">
+                <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              
+              <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                <h3 className="text-sm sm:text-lg font-bold text-[#1A2530] line-clamp-2">{p.name}</h3>
+                
+                {/* Visualización de Precios (Normal o Promoción con tachado) */}
+                {p.es_promocion && p.precio_anterior ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-400 text-xs sm:text-sm line-through font-semibold">{p.precio_anterior}</span>
+                    <span className="text-[#D4AF37] font-black text-base sm:text-lg">{p.price}</span>
+                  </div>
+                ) : (
+                  p.price && <p className="text-[#D4AF37] font-black text-base sm:text-lg mt-1">{p.price}</p>
+                )}
+
+                {/* Detalles breves de la promo en la tarjeta si existen */}
+                {p.es_promocion && p.detalles_promocion && (
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-1 bg-yellow-50/60 p-1 rounded">
+                    🎁 {p.detalles_promocion}
+                  </p>
+                )}
+                
+                <div className="mt-auto pt-3">
+                  <span className="inline-block w-full text-center bg-gray-50 text-gray-700 font-semibold text-xs sm:text-sm py-2 rounded-lg group-hover:bg-[#1A2530] group-hover:text-white transition-colors">
+                    Ver detalles
                   </span>
                 </div>
               </div>
@@ -165,9 +184,27 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             
             <h2 className="text-2xl sm:text-3xl font-black text-[#1A2530] mb-1 leading-tight">{selectedProduct.name}</h2>
             
-            {selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>}
+            {/* Precios en el Modal */}
+            {selectedProduct.es_promocion && selectedProduct.precio_anterior ? (
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-gray-400 text-base line-through font-semibold">{selectedProduct.precio_anterior}</span>
+                <span className="text-[#D4AF37] font-black text-2xl">{selectedProduct.price}</span>
+              </div>
+            ) : (
+              selectedProduct.price && <p className="text-[#D4AF37] font-black text-2xl mb-4">{selectedProduct.price}</p>
+            )}
             
             <div className="space-y-4 mb-8 mt-4">
+              {/* Si es promoción y tiene detalles, los destacamos */}
+              {selectedProduct.es_promocion && selectedProduct.detalles_promocion && (
+                <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm">
+                  <h3 className="font-bold text-[#1A2530] text-xs sm:text-sm uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <span>🔥</span> Qué incluye esta promoción:
+                  </h3>
+                  <p className="text-gray-700 text-sm sm:text-base leading-relaxed font-medium">{selectedProduct.detalles_promocion}</p>
+                </div>
+              )}
+
               {selectedProduct.ingredients && (
                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                   <h3 className="font-bold text-gray-800 text-xs sm:text-sm uppercase tracking-wider mb-1">Ingredientes:</h3>
