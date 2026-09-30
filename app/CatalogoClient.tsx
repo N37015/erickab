@@ -42,7 +42,17 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
       message += `\nIncluye: ${product.detalles_promocion}`;
     }
     message += `\n\nMe gustaría recibir más información.`;
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+
+    // Detectamos si el usuario está en un celular
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // En celular: Fuerza abrir la app directamente sin abrir el navegador web
+      window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    } else {
+      // En PC: Abre la página de WhatsApp Web normalmente en una pestaña nueva
+      window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`, '_blank');
+    }
   };
 
   // --- LÓGICA DE FILTRADO Y ORDENAMIENTO ---
