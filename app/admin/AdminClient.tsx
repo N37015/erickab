@@ -2,18 +2,28 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { addProduct, updateProduct, deleteProduct, Product } from '../actions';
+// Importamos la función para actualizar la config
+import { updateStoreSettings } from '../actions'; 
 
-export default function AdminClient({ initialProducts }: { initialProducts: Product[] }) {
+export default function AdminClient({ initialProducts, initialSettings }: { initialProducts: Product[], initialSettings: any }) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [productToDelete, setProductToDelete] = useState<{ id: string; imageUrl: string; name: string } | null>(null);
 
+  // --- ESTADOS DE CONFIGURACIÓN GLOBAL ---
+  const [globalPromoActive, setGlobalPromoActive] = useState(initialSettings?.promo_active || false);
+  const [globalPromoMessage, setGlobalPromoMessage] = useState(initialSettings?.promo_message || '');
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // --- ESTADOS DEL PRODUCTO ---
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [composition, setComposition] = useState('');
-  const [isPromo, setIsPromo] = useState(false); // <--- Nuevo estado para promoción
+  const [isPromo, setIsPromo] = useState(false);
+  const [precioAnterior, setPrecioAnterior] = useState('');
+  const [detallesPromocion, setDetallesPromocion] = useState('');
   
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -25,14 +35,11 @@ export default function AdminClient({ initialProducts }: { initialProducts: Prod
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const [precioAnterior, setPrecioAnterior] = useState('');
-const [detallesPromocion, setDetallesPromocion] = useState('');
-
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
 
- useEffect(() => {
+  useEffect(() => {
     if (editingProduct) {
       setName(editingProduct.name || '');
       setPrice(editingProduct.price || '');
@@ -64,63 +71,63 @@ const [detallesPromocion, setDetallesPromocion] = useState('');
     setUploadType('file');
   };
 
+  const showAlert = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => { setNotification(null); }, 4000);
+  };
+
+  // --- GUARDAR CONFIGURACIÓN GLOBAL ---
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      await updateStoreSettings(globalPromoActive, globalPromoMessage);
+      showAlert('¡Configuración global guardada! Se reflejará en la página principal al instante.', 'success');
+    } catch (error: any) {
+      showAlert(error.message || 'Error al guardar configuración', 'error');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  // --- MÉTODOS DE ARRASTRE Y SUBIDA (Omitidos por brevedad pero inclúyelos igual) ---
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
     else if (e.type === "dragleave") setDragActive(false);
   };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
   };
-
   const handleFile = (file: File) => {
     setFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  const showAlert = (message: string, type: 'success' | 'error') => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 4000);
-  };
-
   const handleAction = async (formData: FormData) => {
     setIsSubmitting(true);
-    
     try {
       let formattedPrice = price.trim();
       if (formattedPrice && !formattedPrice.startsWith('$')) {
         formattedPrice = `$${formattedPrice}`;
         formData.set('price', formattedPrice);
       }
-
-      // Enviamos el estado de la promoción
       formData.set('is_promo', isPromo ? 'true' : 'false');
 
       if (editingProduct) {
         formData.append('id', editingProduct.id!);
         formData.append('old_image_url', editingProduct.image_url);
-        
         if (uploadType === 'file') {
-          if (file) {
-            formData.set('image_file', file);
-          } else if (preview) {
-            formData.set('image_url', editingProduct.image_url);
-          } else {
-            throw new Error('Borraste la imagen. Selecciona una nueva imagen o URL.');
-          }
+          if (file) formData.set('image_file', file);
+          else if (preview) formData.set('image_url', editingProduct.image_url);
+          else throw new Error('Borraste la imagen. Selecciona una nueva imagen o URL.');
         } else {
           if (!formData.get('image_url')) throw new Error('Ingresa una URL válida');
         }
-
         await updateProduct(formData);
         showAlert('¡Producto actualizado con éxito!', 'success');
       } else {
@@ -133,11 +140,8 @@ const [detallesPromocion, setDetallesPromocion] = useState('');
         await addProduct(formData);
         showAlert('¡Producto creado con éxito!', 'success');
       }
-      
       clearForm(); 
-      
     } catch (error: any) {
-      console.error("Error detallado:", error);
       showAlert(error.message || 'Error al guardar', 'error');
     } finally {
       setIsSubmitting(false);
@@ -147,14 +151,11 @@ const [detallesPromocion, setDetallesPromocion] = useState('');
   const confirmDelete = (id: string, imageUrl: string, name: string) => {
     setProductToDelete({ id, imageUrl, name });
   };
-
   const executeDelete = async () => {
     if (!productToDelete) return;
-    
     const { id, imageUrl } = productToDelete;
     setProductToDelete(null);
     setIsDeleting(id);
-
     try {
       await deleteProduct(id, imageUrl);
       setProducts(products.filter(p => p.id !== id));
@@ -167,18 +168,187 @@ const [detallesPromocion, setDetallesPromocion] = useState('');
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start relative pb-12">
+    <div className="flex flex-col gap-8 pb-12 relative">
       
       {notification && (
-        <div className={`fixed top-4 right-4 left-4 sm:left-auto z-50 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-medium transition-all transform animate-in fade-in slide-in-from-top-5 duration-300 ${
-          notification.type === 'success' ? 'bg-[#1A2530] border-l-4 border-[#D4AF37]' : 'bg-red-600 border-l-4 border-red-800'
-        }`}>
+        <div className={`fixed top-4 right-4 left-4 sm:left-auto z-50 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-medium transition-all transform animate-in fade-in slide-in-from-top-5 duration-300 ${notification.type === 'success' ? 'bg-[#1A2530] border-l-4 border-[#D4AF37]' : 'bg-red-600 border-l-4 border-red-800'}`}>
           <span>{notification.type === 'success' ? '✨' : '⚠️'}</span>
           <p className="flex-1">{notification.message}</p>
           <button onClick={() => setNotification(null)} className="text-xs opacity-75 hover:opacity-100">✕</button>
         </div>
       )}
 
+      {/* --- PANEL DE CONFIGURACIÓN GLOBAL --- */}
+      <div className="w-full bg-white p-6 rounded-xl shadow-md border-2 border-[#D4AF37]">
+        <h3 className="text-xl font-bold text-[#1A2530] mb-4 flex items-center gap-2">
+          <span>🎁</span> Configuración del Código Secreto Web
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Activa esta opción para mostrar un banner en tu página principal y agregar un código secreto automáticamente cuando los clientes pidan por WhatsApp.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={globalPromoActive}
+              onChange={(e) => setGlobalPromoActive(e.target.checked)}
+              className="w-6 h-6 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer"
+            />
+            <span className="font-bold text-[#1A2530]">Activar Promoción Global</span>
+          </label>
+          
+          <div className="flex-1 w-full">
+            <input 
+              type="text" 
+              value={globalPromoMessage}
+              onChange={(e) => setGlobalPromoMessage(e.target.value)}
+              placeholder="Ej. 🎉 PROMO: Usa este código para un postre gratis!"
+              className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#D4AF37] disabled:bg-gray-200 disabled:opacity-50"
+              disabled={!globalPromoActive}
+            />
+          </div>
+
+          <button 
+            onClick={handleSaveSettings}
+            disabled={isSavingSettings}
+            className="w-full sm:w-auto bg-[#1A2530] text-white font-bold px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+          >
+            {isSavingSettings ? 'Guardando...' : 'Guardar Estado'}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* FORMULARIO POSTRES (Igual al tuyo) */}
+        <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-md border border-gray-200 lg:sticky lg:top-24">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-[#1A2530]">
+              {editingProduct ? 'Editar Postre' : 'Añadir Nuevo'}
+            </h3>
+            {editingProduct && (
+              <button onClick={clearForm} type="button" className="text-sm text-red-500 font-bold hover:underline">
+                Cancelar edición
+              </button>
+            )}
+          </div>
+          
+          <form ref={formRef} action={handleAction} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
+              <input required type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Precio</label>
+              <input type="text" name="price" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" placeholder="Ej. 150" />
+            </div>
+
+            {/* CHECKBOX Y CAMPOS DE PROMOCIÓN INDIVIDUAL */}
+            <div className="bg-yellow-50/50 p-4 rounded-xl border border-yellow-200 space-y-3">
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="isPromo" checked={isPromo} onChange={(e) => setIsPromo(e.target.checked)} className="w-5 h-5 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer" />
+                <label htmlFor="isPromo" className="text-sm font-bold text-[#1A2530] cursor-pointer">
+                  🔥 ¿Es una promoción o combo especial?
+                </label>
+              </div>
+
+              {isPromo && (
+                <div className="space-y-3 pt-2 border-t border-yellow-200/60 animate-in fade-in duration-200">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Precio Anterior (Tachado)</label>
+                    <input type="text" name="precio_anterior" value={precioAnterior} onChange={(e) => setPrecioAnterior(e.target.value)} placeholder="Ej. $380" className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">¿Qué incluye la promoción / combo?</label>
+                    <input type="text" name="detalles_promocion" value={detallesPromocion} onChange={(e) => setDetallesPromocion(e.target.value)} placeholder="Ej. 1 Chocoflan + 1 Pay" className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Ingredientes</label>
+              <textarea name="ingredients" rows={2} value={ingredients} onChange={(e) => setIngredients(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
+              <textarea name="composition" rows={2} value={composition} onChange={(e) => setComposition(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
+            </div>
+
+            <div className="pt-2">
+              <div className="flex gap-4 mb-3 border-b pb-2">
+                <button type="button" onClick={() => setUploadType('file')} className={`text-sm font-bold pb-1 ${uploadType === 'file' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400'}`}>Subir Archivo</button>
+                <button type="button" onClick={() => setUploadType('url')} className={`text-sm font-bold pb-1 ${uploadType === 'url' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400'}`}>Usar URL</button>
+              </div>
+
+              {uploadType === 'url' ? (
+                <input type="url" name="image_url" defaultValue={editingProduct?.image_url} className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-[#D4AF37]" placeholder="https://..." />
+              ) : (
+                <div onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop} className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center transition-colors ${dragActive ? 'border-[#D4AF37] bg-yellow-50' : 'border-gray-300 bg-gray-50'}`}>
+                  {preview ? (
+                    <div className="relative w-full">
+                      <img src={preview} alt="Vista previa" className="h-32 mx-auto object-contain rounded-md" />
+                      <button type="button" onClick={() => { setFile(null); setPreview(null); }} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-xs text-gray-600 mb-2">Arrastra tu imagen o</p>
+                      <label className="bg-[#1A2530] text-white px-4 py-2 rounded-lg cursor-pointer text-xs font-medium hover:bg-gray-800">
+                        Explorar archivos
+                        <input type="file" accept="image/*" className="hidden" onChange={handleChange} />
+                      </label>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <button disabled={isSubmitting} type="submit" className={`w-full text-[#FFFDF7] font-bold py-3 rounded-lg transition-all shadow-md mt-4 ${isSubmitting ? 'bg-gray-400' : (editingProduct ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1A2530] hover:bg-gray-800')}`}>
+              {isSubmitting ? 'Guardando...' : (editingProduct ? 'Actualizar Postre' : 'Guardar Postre')}
+            </button>
+          </form>
+        </div>
+
+        {/* LISTA POSTRES (Igual al tuyo) */}
+        <div className="w-full lg:w-2/3">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6">
+            <h3 className="text-lg font-bold text-[#1A2530] mb-4">Postres Registrados ({products.length})</h3>
+            
+            {products.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No hay productos registrados aún.</div>
+            ) : (
+              <div className="space-y-4">
+                {products.map((product: any) => (
+                  <div key={product.id} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 gap-3 hover:shadow-sm transition-all">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <img src={product.image_url} alt={product.name} className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shadow-sm flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-[#1A2530] truncate text-sm sm:text-base">{product.name}</h4>
+                          {product.es_promocion && <span className="bg-[#D4AF37] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">OFERTA</span>}
+                        </div>
+                        <p className="text-xs sm:text-sm text-[#D4AF37] font-bold">{product.price || 'Sin precio'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button onClick={() => setEditingProduct(product)} type="button" className="text-xs sm:text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition-colors">
+                        Editar
+                      </button>
+                      <button onClick={() => confirmDelete(product.id!, product.image_url, product.name)} type="button" disabled={isDeleting === product.id} className="text-xs sm:text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition-colors disabled:opacity-50">
+                        {isDeleting === product.id ? '...' : 'Eliminar'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
       {productToDelete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border-t-4 border-[#D4AF37]">
@@ -197,154 +367,6 @@ const [detallesPromocion, setDetallesPromocion] = useState('');
           </div>
         </div>
       )}
-      
-      {/* FORMULARIO */}
-      <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-md border border-gray-200 lg:sticky lg:top-24">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-[#1A2530]">
-            {editingProduct ? 'Editar Postre' : 'Añadir Nuevo'}
-          </h3>
-          {editingProduct && (
-            <button onClick={clearForm} type="button" className="text-sm text-red-500 font-bold hover:underline">
-              Cancelar edición
-            </button>
-          )}
-        </div>
-        
-        <form ref={formRef} action={handleAction} className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
-            <input required type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Precio</label>
-            <input type="text" name="price" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none" placeholder="Ej. 150" />
-          </div>
-
-         {/* CHECKBOX Y CAMPOS DE PROMOCIÓN */}
-          <div className="bg-yellow-50/50 p-4 rounded-xl border border-yellow-200 space-y-3">
-            <div className="flex items-center gap-3">
-              <input 
-                type="checkbox" 
-                id="isPromo"
-                checked={isPromo}
-                onChange={(e) => setIsPromo(e.target.checked)}
-                className="w-5 h-5 text-[#D4AF37] accent-[#D4AF37] rounded cursor-pointer"
-              />
-              <label htmlFor="isPromo" className="text-sm font-bold text-[#1A2530] cursor-pointer">
-                🔥 ¿Es una promoción o combo especial?
-              </label>
-            </div>
-
-            {isPromo && (
-              <div className="space-y-3 pt-2 border-t border-yellow-200/60 animate-in fade-in duration-200">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Precio Anterior (Tachado)</label>
-                  <input 
-                    type="text" 
-                    name="precio_anterior" 
-                    value={precioAnterior}
-                    onChange={(e) => setPrecioAnterior(e.target.value)}
-                    placeholder="Ej. $380" 
-                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">¿Qué incluye la promoción / combo?</label>
-                  <input 
-                    type="text" 
-                    name="detalles_promocion" 
-                    value={detallesPromocion}
-                    onChange={(e) => setDetallesPromocion(e.target.value)}
-                    placeholder="Ej. 1 Chocoflan familiar + 1 Pay de Queso" 
-                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-[#D4AF37]" 
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Ingredientes</label>
-            <textarea name="ingredients" rows={2} value={ingredients} onChange={(e) => setIngredients(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
-            <textarea name="composition" rows={2} value={composition} onChange={(e) => setComposition(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D4AF37] outline-none resize-none" />
-          </div>
-
-          <div className="pt-2">
-            <div className="flex gap-4 mb-3 border-b pb-2">
-              <button type="button" onClick={() => setUploadType('file')} className={`text-sm font-bold pb-1 ${uploadType === 'file' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400'}`}>Subir Archivo</button>
-              <button type="button" onClick={() => setUploadType('url')} className={`text-sm font-bold pb-1 ${uploadType === 'url' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400'}`}>Usar URL</button>
-            </div>
-
-            {uploadType === 'url' ? (
-              <input type="url" name="image_url" defaultValue={editingProduct?.image_url} className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-[#D4AF37]" placeholder="https://..." />
-            ) : (
-              <div onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop} className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center transition-colors ${dragActive ? 'border-[#D4AF37] bg-yellow-50' : 'border-gray-300 bg-gray-50'}`}>
-                {preview ? (
-                  <div className="relative w-full">
-                    <img src={preview} alt="Vista previa" className="h-32 mx-auto object-contain rounded-md" />
-                    <button type="button" onClick={() => { setFile(null); setPreview(null); }} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-xs text-gray-600 mb-2">Arrastra tu imagen o</p>
-                    <label className="bg-[#1A2530] text-white px-4 py-2 rounded-lg cursor-pointer text-xs font-medium hover:bg-gray-800">
-                      Explorar archivos
-                      <input type="file" accept="image/*" className="hidden" onChange={handleChange} />
-                    </label>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
-          <button disabled={isSubmitting} type="submit" className={`w-full text-[#FFFDF7] font-bold py-3 rounded-lg transition-all shadow-md mt-4 ${isSubmitting ? 'bg-gray-400' : (editingProduct ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1A2530] hover:bg-gray-800')}`}>
-            {isSubmitting ? 'Guardando...' : (editingProduct ? 'Actualizar Postre' : 'Guardar Postre')}
-          </button>
-        </form>
-      </div>
-
-      {/* LISTA */}
-      <div className="w-full lg:w-2/3">
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6">
-          <h3 className="text-lg font-bold text-[#1A2530] mb-4">Postres Registrados ({products.length})</h3>
-          
-          {products.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No hay productos registrados aún.</div>
-          ) : (
-            <div className="space-y-4">
-              {products.map((product: any) => (
-                <div key={product.id} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 gap-3 hover:shadow-sm transition-all">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <img src={product.image_url} alt={product.name} className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shadow-sm flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-[#1A2530] truncate text-sm sm:text-base">{product.name}</h4>
-                        {product.is_promo && <span className="bg-[#D4AF37] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">OFERTA</span>}
-                      </div>
-                      <p className="text-xs sm:text-sm text-[#D4AF37] font-bold">{product.price || 'Sin precio'}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={() => setEditingProduct(product)} type="button" className="text-xs sm:text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition-colors">
-                      Editar
-                    </button>
-                    <button onClick={() => confirmDelete(product.id!, product.image_url, product.name)} type="button" disabled={isDeleting === product.id} className="text-xs sm:text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition-colors disabled:opacity-50">
-                      {isDeleting === product.id ? '...' : 'Eliminar'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

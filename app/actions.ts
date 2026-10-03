@@ -132,3 +132,31 @@ export async function deleteProduct(id: string, imageUrl: string) {
   revalidatePath('/');
   revalidatePath('/admin');
 }
+
+export async function getStoreSettings() {
+ const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('store_settings')
+    .select('*')
+    .eq('id', 1)
+    .single();
+
+  if (error) {
+    console.error("Error fetching settings:", error);
+    return { promo_active: false, promo_message: '' };
+  }
+  return data;
+}
+
+export async function updateStoreSettings(promo_active: boolean, promo_message: string) {
+const supabase = await createClient();
+  const { error } = await supabase
+    .from('store_settings')
+    .update({ promo_active, promo_message })
+    .eq('id', 1);
+
+  if (error) throw new Error(error.message);
+  
+  revalidatePath('/');
+  revalidatePath('/admin');
+}

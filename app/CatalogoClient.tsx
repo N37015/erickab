@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Product } from './actions';
 
-export default function CatalogoClient({ products }: { products: Product[] }) {
+// 1. AÑADIMOS 'settings' A LAS PROPIEDADES DEL COMPONENTE
+export default function CatalogoClient({ products, settings }: { products: Product[], settings?: any }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const phoneNumber = "529681176558"; // Tu número de WhatsApp
 
@@ -37,20 +38,31 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
   };
 
   const handleWhatsApp = (product: Product) => {
+    // Armamos el mensaje principal
     let message = `¡Hola! Me interesa hacer un pedido de: *${product.name}*${product.price ? ` (${product.price})` : ''}.`;
     if (product.es_promocion && product.detalles_promocion) {
       message += `\nIncluye: ${product.detalles_promocion}`;
     }
+    
+    // 2. VERIFICAMOS SI LA PROMO GLOBAL ESTÁ ACTIVA ANTES DE DAR EL CÓDIGO
+    if (settings?.promo_active) {
+      const now = new Date();
+      const timeString = `${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+      const randomStr = Math.random().toString(36).substring(2, 5).toUpperCase();
+      const secretCode = `WEB-${timeString}-${randomStr}`;
+
+      message += `\n\n🎁 *Código de Promo Web:* ${secretCode}`;
+      message += `\n_(Válido únicamente por 15 minutos)_`;
+    }
+
     message += `\n\nMe gustaría recibir más información.`;
 
-    // Detectamos si el usuario está en un celular
+    // Lógica de envío (celular vs PC)
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     if (isMobile) {
-      // En celular: Fuerza abrir la app directamente sin abrir el navegador web
       window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     } else {
-      // En PC: Abre la página de WhatsApp Web normalmente en una pestaña nueva
       window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`, '_blank');
     }
   };

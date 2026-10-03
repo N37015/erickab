@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { getStoreSettings } from './actions';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,11 +10,21 @@ export const metadata: Metadata = {
   description: "Deliciosos postres artesanales.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Leemos la configuración global
+  const settings = await getStoreSettings();
+
   return (
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         
+        {/* BANNER DE PROMOCIÓN WEB (Se muestra solo si está activa) */}
+        {settings?.promo_active && (
+          <div className="bg-[#D4AF37] text-[#1A2530] text-center text-xs sm:text-sm font-black py-1.5 px-2 shadow-sm z-50 relative">
+            {settings.promo_message || "🎉 PROMO WEB: ¡Menciona el código secreto al pedir y recibe una sorpresa especial! 🎁"}
+          </div>
+        )}
+
         <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-2 sm:px-4 py-3 sticky top-0 z-40 shadow-md">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
             

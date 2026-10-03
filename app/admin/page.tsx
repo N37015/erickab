@@ -1,19 +1,17 @@
-import { getProducts } from '../actions';
+// app/admin/page.tsx
+import { getProducts, getStoreSettings } from '../actions';
 import AdminClient from './AdminClient';
 
-export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
-  const products = (await getProducts()) || [];
+  const products = await getProducts();
+  const settings = await getStoreSettings(); // <-- Leemos la BD
 
   return (
-    <div className="max-w-6xl mx-auto mt-4">
-      <div className="flex justify-between items-center mb-8 border-b-2 border-[#D4AF37] pb-4">
-        <h2 className="text-3xl font-extrabold text-[#1A2530]">Panel de Control</h2>
-      </div>
-      
-      {/* Pasamos los productos al componente interactivo */}
-      <AdminClient initialProducts={products} />
+    <div className="p-8">
+      {/* Pasamos ambas variables al cliente */}
+      <AdminClient initialProducts={products} initialSettings={settings} />
     </div>
   );
 }
