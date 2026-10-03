@@ -14,46 +14,46 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         
-        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-4 py-3 sticky top-0 z-40 shadow-md">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        <header className="w-full bg-[#1A2530] border-b-4 border-[#D4AF37] px-2 sm:px-4 py-3 sticky top-0 z-40 shadow-md">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
             
             {/* Logo y Nombre alineados */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <img src="/logo.png" alt="Erika's Bake" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-[#D4AF37]" />
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Erika's Bake" className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover border border-[#D4AF37]" />
               <div>
-                <h1 className="text-white font-black text-lg sm:text-2xl tracking-wide leading-tight">Erika's Bake</h1>
-                <p className="text-[#D4AF37] text-[10px] sm:text-xs font-medium">Postres Artesanales</p>
+                <h1 className="text-white font-black text-sm sm:text-2xl tracking-wide leading-tight">Erika's Bake</h1>
+                <p className="text-[#D4AF37] text-[9px] sm:text-xs font-medium">Postres Artesanales</p>
               </div>
             </div>
 
             {/* Contenedor de Botones (WhatsApp + Ubicación) */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               
-              {/* Botón de WhatsApp Nuevo */}
+              {/* Botón de WhatsApp Nuevo - Visible en celular y con "select-all" para copia rápida */}
               <a 
                 href="https://wa.me/529681176558?text=¡Hola!%20Me%20gustaría%20más%20información." 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#1A2530] hover:text-white bg-[#25D366] hover:bg-[#128C7E] transition-colors px-2.5 sm:px-3 py-2 rounded-xl shadow-sm flex-shrink-0"
+                className="flex items-center gap-1 text-[11px] sm:text-sm font-bold text-[#1A2530] hover:text-white bg-[#25D366] hover:bg-[#128C7E] transition-colors px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-sm flex-shrink-0"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" className="sm:w-3.5 sm:h-3.5">
                   <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
                 </svg>
-                <span className="hidden sm:inline">968 117 6558</span>
+                <span className="select-all whitespace-nowrap">968 117 6558</span>
               </a>
 
-              {/* Botón de Ubicación Original */}
+              {/* Botón de Ubicación Original - Icono en celular, texto en PC */}
               <a 
                 href="https://www.google.com/maps/place/16%C2%B045'08.3%22N+93%C2%B022'13.1%22W/@16.752294,-93.370291,675m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d16.752294!4d-93.370291!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-200 hover:text-[#D4AF37] transition-colors bg-[#111822] px-2.5 sm:px-3 py-2 rounded-xl border border-gray-800 shadow-inner flex-shrink-0"
+                className="flex items-center gap-1.5 text-[11px] sm:text-sm font-bold text-gray-200 hover:text-[#D4AF37] transition-colors bg-[#111822] px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-800 shadow-inner flex-shrink-0"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="hidden sm:inline">Ubicación</span>
+                <span className="hidden md:inline">Ubicación</span>
               </a>
 
             </div>
