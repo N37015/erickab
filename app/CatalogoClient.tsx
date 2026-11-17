@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Product } from './actions';
+import Link from 'next/link';
 
 const PHONE_NUMBER = '529681176558'; // Tu número de WhatsApp
 
@@ -168,7 +169,9 @@ export default function CatalogoClient({ products, settings }: { products: Produ
             aria-label="Buscar postre"
             className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm font-medium text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#D4AF37] focus:bg-white focus:ring-2 focus:ring-[#D4AF37]/40"
           />
+          
         </div>
+        
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_1.2fr]">
           <button
@@ -205,6 +208,7 @@ export default function CatalogoClient({ products, settings }: { products: Produ
             <option value="desc">Mayor precio ($)</option>
           </select>
         </div>
+        
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>
@@ -217,6 +221,27 @@ export default function CatalogoClient({ products, settings }: { products: Produ
           )}
         </div>
       </div>
+      <Link
+  href="/galeria"
+  className="group mb-8 flex items-center justify-between gap-4 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-r from-[#1A2530] to-[#243444] p-4 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl sm:p-5"
+>
+  <div className="flex items-center gap-3 sm:gap-4">
+    <span
+    >
+      
+    </span>
+    <div>
+      <p className="text-sm font-black text-white sm:text-lg">Galería de Postres</p>
+      <p className="text-xs text-gray-300 sm:text-sm">Mira todas nuestras creaciones en fotos</p>
+    </div>
+  </div>
+  <span
+    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-lg text-[#D4AF37] transition-transform group-hover:translate-x-1"
+    aria-hidden
+  >
+    →
+  </span>
+</Link>
 
       {/* CUADRÍCULA DE PRODUCTOS */}
       {sortedProducts.length === 0 ? (

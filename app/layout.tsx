@@ -56,15 +56,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
                 
               </a>
-               {/* Botón de Galería */}
-              <Link 
-                href="/galeria"
-                className="flex items-center gap-1 text-[11px] sm:text-sm font-bold text-gray-200 hover:text-[#D4AF37] transition-colors bg-[#111822] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-800 shadow-inner flex-shrink-0"
-              >
-                
-                <span className="hidden sm:inline">Galería</span>
-              </Link>
-
+              
             </div>
           </div>
         </header>
