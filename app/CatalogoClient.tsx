@@ -152,10 +152,15 @@ export default function CatalogoClient({ products, settings }: { products: Produ
 
   const sel: any = selectedProduct;
 
+  // Altura superior dinámica para que la barra de búsqueda y filtros quede siempre fija debajo del header
+  const stickyTopClass = settings?.promo_active
+    ? 'top-[98px] sm:top-[116px]'
+    : 'top-[62px] sm:top-[76px]';
+
   return (
     <>
-      {/* BARRA DE BÚSQUEDA, FILTROS Y ORDENAMIENTO */}
-      <div className="mb-8 flex flex-col gap-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+      {/* BARRA DE BÚSQUEDA, FILTROS Y ORDENAMIENTO ESTÁTICA */}
+      <div className={`sticky ${stickyTopClass} z-30 mb-8 flex flex-col gap-3 rounded-3xl border border-gray-200 bg-white/95 p-4 shadow-md backdrop-blur-md sm:p-5`}>
         {/* Buscador */}
         <div className="relative">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden>
@@ -169,9 +174,7 @@ export default function CatalogoClient({ products, settings }: { products: Produ
             aria-label="Buscar postre"
             className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm font-medium text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#D4AF37] focus:bg-white focus:ring-2 focus:ring-[#D4AF37]/40"
           />
-          
         </div>
-        
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_1.2fr]">
           <button
@@ -208,7 +211,6 @@ export default function CatalogoClient({ products, settings }: { products: Produ
             <option value="desc">Mayor precio ($)</option>
           </select>
         </div>
-        
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>
@@ -221,27 +223,26 @@ export default function CatalogoClient({ products, settings }: { products: Produ
           )}
         </div>
       </div>
+
+      {/* BOTÓN DE GALERÍA */}
       <Link
-  href="/galeria"
-  className="group mb-8 flex items-center justify-between gap-4 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-r from-[#1A2530] to-[#243444] p-4 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl sm:p-5"
->
-  <div className="flex items-center gap-3 sm:gap-4">
-    <span
-    >
-      
-    </span>
-    <div>
-      <p className="text-sm font-black text-white sm:text-lg">Galería de Postres</p>
-      <p className="text-xs text-gray-300 sm:text-sm">Mira todas nuestras creaciones en fotos</p>
-    </div>
-  </div>
-  <span
-    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-lg text-[#D4AF37] transition-transform group-hover:translate-x-1"
-    aria-hidden
-  >
-    →
-  </span>
-</Link>
+        href="/galeria"
+        className="group mb-8 flex items-center justify-between gap-4 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-r from-[#1A2530] to-[#243444] p-4 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl sm:p-5"
+      >
+        <div className="flex items-center gap-3 sm:gap-4">
+        
+          <div>
+            <p className="text-sm font-black text-white sm:text-lg">Galería de Postres</p>
+            <p className="text-xs text-gray-300 sm:text-sm">Mira todas nuestras creaciones en fotos</p>
+          </div>
+        </div>
+        <span
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-lg text-[#D4AF37] transition-transform group-hover:translate-x-1"
+          aria-hidden
+        >
+          →
+        </span>
+      </Link>
 
       {/* CUADRÍCULA DE PRODUCTOS */}
       {sortedProducts.length === 0 ? (
