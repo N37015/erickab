@@ -7,8 +7,32 @@ import { getStoreSettings } from './actions';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Erika's Bake",
-  description: "Deliciosos postres artesanales.",
+  // 👇 REEMPLAZA ESTO CON TU URL REAL DE VERCEL (sin diagonal al final)
+  metadataBase: new URL("https://erickab.vercel.app/"),
+  title: "Erika's Bake | Postres Artesanales",
+  description: "Endulzando tus momentos especiales con postres artesanales hechos en casa en Ocozocoautla, Chiapas. ¡Consulta nuestro catálogo y promociones!",
+  openGraph: {
+    title: "Erika's Bake — Postres Artesanales 🍰",
+    description: "Descubre nuestro catálogo de pays, flanes, pasteles y promociones especiales. ¡Haz tu pedido por WhatsApp!",
+    url: "/",
+    siteName: "Erika's Bake",
+    locale: "es_MX",
+    type: "website",
+    images: [
+      {
+        url: "/logo1.png", // 👈 Cambia a "/portada.jpg" si subes una foto especial a /public
+        width: 1200,
+        height: 630,
+        alt: "Erika's Bake - Postres Artesanales",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Erika's Bake — Postres Artesanales 🍰",
+    description: "Endulzando tus momentos especiales con postres hechos en casa.",
+    images: ["/logo.png"], // 👈 Misma imagen que arriba
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
